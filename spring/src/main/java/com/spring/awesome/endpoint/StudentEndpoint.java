@@ -73,6 +73,7 @@ public class StudentEndpoint {
   @PutMapping // Substitui o de cima
   public ResponseEntity<?> update(@RequestBody Student student) {
 
+    verifyIfStudentsExists(student.getId());
     studentDAO.save(student); // Ele sabe que tem q ser atualizado, quando vem com ID
     return new ResponseEntity<>(student, HttpStatus.OK);
   }
