@@ -1,7 +1,10 @@
 package com.spring.awesome.endpoint;
 
+import java.util.Optional;
+
 import com.spring.awesome.error.CustomErrorType;
 import com.spring.awesome.model.Student;
+import com.spring.awesome.repository.StudentRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,11 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("students") // onde ele vai acessar (Rota)
 public class StudentEndpoint {
 
+  private final StudentRepository studentDAO;
+
   // Faz injeção da depência da classe DateUtil
   // Aconselhavel coloca-lo dentro de um construtor
   @Autowired
-  public StudentEndpoint() {
-
+  public StudentEndpoint(StudentRepository studentDAO) {
+    this.studentDAO = studentDAO;
   }
 
   // GET sem path retorna tudo
@@ -35,26 +40,20 @@ public class StudentEndpoint {
   @GetMapping
   public ResponseEntity<?> listAll() {
 
-    return new ResponseEntity<>(Student.studentList, HttpStatus.OK);
+    return new ResponseEntity<>(studentDAO.findAll(), HttpStatus.OK);
   }
 
   // GET GetById
   // @RequestMapping(method = RequestMethod.GET, path = "/{id}")
   @GetMapping(path = "/{id}") // Substitui o de cima
-  public ResponseEntity<?> getStudentById(@PathVariable("id") int id) {
+  public ResponseEntity<?> getStudentById(@PathVariable("id") Long id) {
 
-    Student student = new Student();
+    Optional<Student> student = studentDAO.findById(id);
 
-    student.setId(id);
-
-    int index = Student.studentList.indexOf(student);
-
-    // Caso não encontre
-
-    if (index == -1)
+    if (student == null)
       return new ResponseEntity<>(new CustomErrorType("Student not found"), HttpStatus.NOT_FOUND);
-    else
-      return new ResponseEntity<>(Student.studentList.get(index), HttpStatus.OK);
+
+    return new ResponseEntity<>(student, HttpStatus.OK);
   }
 
   // POST - Incluir
@@ -62,9 +61,7 @@ public class StudentEndpoint {
   @PostMapping // Substitui o de cima
   public ResponseEntity<?> save(@RequestBody Student student) {
 
-    Student.studentList.add(student);
-
-    return new ResponseEntity<>(student, HttpStatus.OK);
+    return new ResponseEntity<>(studentDAO.save(student), HttpStatus.OK);
   }
 
   // PUT - Atualizar
@@ -72,19 +69,17 @@ public class StudentEndpoint {
   @PutMapping // Substitui o de cima
   public ResponseEntity<?> update(@RequestBody Student student) {
 
-    Student.studentList.remove(student);
-    Student.studentList.add(student);
-
+    studentDAO.save(student); // Ele sabe que tem q ser atualizado, quando vem com ID
     return new ResponseEntity<>(student, HttpStatus.OK);
   }
 
   // DELETE - Deletar
   // Idempotent (Se você fizer várias vezes a mesma requisição mesmo resultado)
   // @RequestMapping(method = RequestMethod.DELETE)
-  @DeleteMapping // Subtitui o de cima
-  public ResponseEntity<?> delete(@RequestBody Student student) {
+  @DeleteMapping(path = "/{id}") // Subtitui o de cima
+  public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 
-    Student.studentList.remove(student);
+    studentDAO.deleteById(id);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }
