@@ -2,6 +2,8 @@ package com.spring.awesome.endpoint;
 
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import com.spring.awesome.error.ResourceNotFoundException;
 import com.spring.awesome.model.Student;
 import com.spring.awesome.repository.StudentRepository;
@@ -49,7 +51,7 @@ public class StudentEndpoint {
   @GetMapping(path = "/{id}") // Substitui o de cima
   public ResponseEntity<?> getStudentById(@PathVariable("id") Long id) {
 
-    // Agora essa verficação está em um método
+    // Agora essa verficação está em um método verifyIfStudentsExists()
     Optional<Student> student = studentDAO.findById(id);
 
     // return new ResponseEntity<>(new CustomErrorType("Student not found"),
@@ -69,8 +71,8 @@ public class StudentEndpoint {
    * uncheked usar roolbackFor = (Execção)
    */
   @Transactional // Fala que este método tem que estar em transação
-  public ResponseEntity<?> save(@RequestBody Student student) {
-
+  public ResponseEntity<?> save(@Valid @RequestBody Student student) {
+    // @valid faz com que as validações sejam aplicadas ex @NotEmpty
     studentDAO.save(student); // Aqui ele cria
     // studentDAO.save(student); // Aqui ele atualiza por que tem o id
 
