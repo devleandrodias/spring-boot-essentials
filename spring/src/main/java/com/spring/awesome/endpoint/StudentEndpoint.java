@@ -2,7 +2,7 @@ package com.spring.awesome.endpoint;
 
 import java.util.Optional;
 
-import com.spring.awesome.error.CustomErrorType;
+import com.spring.awesome.error.ResourceNotFoundException;
 import com.spring.awesome.model.Student;
 import com.spring.awesome.repository.StudentRepository;
 
@@ -48,12 +48,16 @@ public class StudentEndpoint {
   @GetMapping(path = "/{id}") // Substitui o de cima
   public ResponseEntity<?> getStudentById(@PathVariable("id") Long id) {
 
+    // Agora essa verficação está em um método
     Optional<Student> student = studentDAO.findById(id);
 
-    if (student == null)
-      return new ResponseEntity<>(new CustomErrorType("Student not found"), HttpStatus.NOT_FOUND);
+    // return new ResponseEntity<>(new CustomErrorType("Student not found"),
+    // HttpStatus.NOT_FOUND);
 
-    return new ResponseEntity<>(student, HttpStatus.OK);
+    if (student.isPresent())
+      return new ResponseEntity<>(student, HttpStatus.OK);
+    else
+      throw new ResourceNotFoundException("Student not found for ID: " + id);
   }
 
   // POST - Incluir
@@ -79,13 +83,23 @@ public class StudentEndpoint {
   @DeleteMapping(path = "/{id}") // Subtitui o de cima
   public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 
+    verifyIfStudentsExists(id);
+
     studentDAO.deleteById(id);
+
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping(path = "/findByName/{name}")
   public ResponseEntity<?> findByName(@PathVariable String name) {
     return new ResponseEntity<>(studentDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
+  }
+
+  private void verifyIfStudentsExists(Long id) {
+    Optional<Student> student = studentDAO.findById(id);
+
+    if (!student.isPresent())
+      throw new ResourceNotFoundException("Student not found for ID: " + id);
   }
 }
 
