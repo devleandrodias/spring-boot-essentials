@@ -45,6 +45,7 @@ public class StudentEndpoint {
   public ResponseEntity<?> listAll(Pageable pageable /** Paginação */
   ) {
 
+    // sort=id,desc ou asc
     return new ResponseEntity<>(studentDAO.findAll(pageable), HttpStatus.OK);
   }
 
