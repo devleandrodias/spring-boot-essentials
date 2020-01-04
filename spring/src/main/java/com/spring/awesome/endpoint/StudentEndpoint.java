@@ -9,6 +9,7 @@ import com.spring.awesome.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,8 +64,20 @@ public class StudentEndpoint {
   // POST - Incluir
   // @RequestMapping(method = RequestMethod.POST)
   @PostMapping // Substitui o de cima
+  /**
+   * Por padrão trata execções do time uncheked, se quiser tratar exeções do tipo
+   * uncheked usar roolbackFor = (Execção)
+   */
+  @Transactional // Fala que este método tem que estar em transação
   public ResponseEntity<?> save(@RequestBody Student student) {
 
+    studentDAO.save(student); // Aqui ele cria
+    // studentDAO.save(student); // Aqui ele atualiza por que tem o id
+
+    // Caso der execção não pode persistir os de cima nem os de baixo
+    // if (true)
+    // throw new RuntimeException("Teste Transaction");
+    // else
     return new ResponseEntity<>(studentDAO.save(student), HttpStatus.CREATED);
   }
 
