@@ -61,7 +61,7 @@ public class StudentEndpoint {
   @PostMapping // Substitui o de cima
   public ResponseEntity<?> save(@RequestBody Student student) {
 
-    return new ResponseEntity<>(studentDAO.save(student), HttpStatus.OK);
+    return new ResponseEntity<>(studentDAO.save(student), HttpStatus.CREATED);
   }
 
   // PUT - Atualizar
@@ -81,6 +81,11 @@ public class StudentEndpoint {
 
     studentDAO.deleteById(id);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @GetMapping(path = "/findByName/{name}")
+  public ResponseEntity<?> findByName(@PathVariable String name) {
+    return new ResponseEntity<>(studentDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
   }
 }
 
