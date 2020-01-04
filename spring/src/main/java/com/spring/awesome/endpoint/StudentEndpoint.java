@@ -9,6 +9,7 @@ import com.spring.awesome.model.Student;
 import com.spring.awesome.repository.StudentRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,9 +42,10 @@ public class StudentEndpoint {
   // GET sem path retorna tudo
   // @RequestMapping(method = RequestMethod.GET)
   @GetMapping
-  public ResponseEntity<?> listAll() {
+  public ResponseEntity<?> listAll(Pageable pageable /** Paginação */
+  ) {
 
-    return new ResponseEntity<>(studentDAO.findAll(), HttpStatus.OK);
+    return new ResponseEntity<>(studentDAO.findAll(pageable), HttpStatus.OK);
   }
 
   // GET GetById
