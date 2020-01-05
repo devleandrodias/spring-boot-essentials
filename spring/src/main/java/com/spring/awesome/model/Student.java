@@ -13,6 +13,15 @@ public class Student extends AbstractEntity {
 
   private static final long serialVersionUID = 1L;
 
+  public Student() {
+
+  }
+
+  public Student(String name, String email) {
+    this.name = name;
+    this.email = email;
+  }
+
   @NotEmpty
   private String name;
 
