@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController // Aqui é nosso endpoint
 // Usar mapping no plutal
-@RequestMapping("students") // onde ele vai acessar (Rota)
+@RequestMapping("v1") // onde ele vai acessar (Rota)
 public class StudentEndpoint {
 
   private final StudentRepository studentDAO;
@@ -42,7 +41,7 @@ public class StudentEndpoint {
 
   // GET sem path retorna tudo
   // @RequestMapping(method = RequestMethod.GET)
-  @GetMapping
+  @GetMapping(path = "protected/students")
   public ResponseEntity<?> listAll(Pageable pageable /** Paginação */
   ) {
 
@@ -52,7 +51,7 @@ public class StudentEndpoint {
 
   // GET GetById
   // @RequestMapping(method = RequestMethod.GET, path = "/{id}")
-  @GetMapping(path = "/{id}") // Substitui o de cima
+  @GetMapping(path = "protected/students/{id}") // Substitui o de cima
   public ResponseEntity<?> getStudentById(@PathVariable("id") Long id) {
 
     // Agora essa verficação está em um método verifyIfStudentsExists()
@@ -69,12 +68,12 @@ public class StudentEndpoint {
 
   // POST - Incluir
   // @RequestMapping(method = RequestMethod.POST)
-  @PostMapping // Substitui o de cima
+  @PostMapping("admin/students") // Substitui o de cima
   /**
    * Por padrão trata execções do time uncheked, se quiser tratar exeções do tipo
    * uncheked usar roolbackFor = (Execção)
    */
-  @Transactional // Fala que este método tem que estar em transação
+  @Transactional // Fala que este método tem que estar em transação, lembrar InnoDB
   public ResponseEntity<?> save(@Valid @RequestBody Student student) {
     // @valid faz com que as validações sejam aplicadas ex @NotEmpty
     studentDAO.save(student); // Aqui ele cria
@@ -89,7 +88,7 @@ public class StudentEndpoint {
 
   // PUT - Atualizar
   // @RequestMapping(method = RequestMethod.PUT)
-  @PutMapping // Substitui o de cima
+  @PutMapping("admin/students") // Substitui o de cima
   public ResponseEntity<?> update(@RequestBody Student student) {
 
     verifyIfStudentsExists(student.getId());
@@ -100,8 +99,8 @@ public class StudentEndpoint {
   // DELETE - Deletar
   // Idempotent (Se você fizer várias vezes a mesma requisição mesmo resultado)
   // @RequestMapping(method = RequestMethod.DELETE)
-  @DeleteMapping(path = "/{id}") // Subtitui o de cima
-  @PreAuthorize("hasRole('ADMIN')")
+  @DeleteMapping(path = "admin/students/{id}") // Subtitui o de cima
+  // @PreAuthorize("hasRole('ADMIN')") Não mais necessário
   public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 
     verifyIfStudentsExists(id);
@@ -111,7 +110,7 @@ public class StudentEndpoint {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @GetMapping(path = "/findByName/{name}")
+  @GetMapping(path = "protected/students/findByName/{name}")
   public ResponseEntity<?> findByName(@PathVariable String name) {
     return new ResponseEntity<>(studentDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
   }
