@@ -1,8 +1,6 @@
 package com.spring.awesome.javaclient;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.spring.awesome.model.PagebleResponse;
 import com.spring.awesome.model.Student;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -25,18 +23,25 @@ public class JavaSpringClientTest {
 
     System.out.println(student);
     System.out.println("---------------------------------");
-    System.out.println(entity);
-    System.out.println("----------------Array-----------------");
+    System.out.println(entity.getBody());
+    // System.out.println("----------------Array-----------------");
 
-    Student[] students = restTemplate.getForObject("/", Student[].class);
-    System.out.println(Arrays.toString(students));
+    // Student[] students = restTemplate.getForObject("/", Student[].class);
+    // System.out.println(Arrays.toString(students));
 
-    System.out.println("----------------Listas-----------------");
+    // System.out.println("----------------Listas-----------------");
 
-    ResponseEntity<List<Student>> responseEntity = restTemplate.exchange("/", HttpMethod.GET, null,
-        new ParameterizedTypeReference<List<Student>>() {
+    // ResponseEntity<List<Student>> responseEntity = restTemplate.exchange("/",
+    // HttpMethod.GET, null,
+    // new ParameterizedTypeReference<List<Student>>() {
+    // });
+
+    // System.out.println(responseEntity.getBody());
+
+    ResponseEntity<PagebleResponse<Student>> responseEntity = restTemplate.exchange("/", HttpMethod.GET, null,
+        new ParameterizedTypeReference<PagebleResponse<Student>>() {
         });
 
-    System.out.println(responseEntity.getBody());
+    System.out.println(responseEntity);
   }
 }
